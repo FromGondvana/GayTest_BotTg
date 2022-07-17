@@ -2,12 +2,12 @@ package process;
 
 import java.util.Objects;
 
-public class RunningTest {
+public class PlayGame {
     private int index;
     private int countYesAnsw;
     private String id;
 
-    public RunningTest(String id) {
+    public PlayGame(String id) {
         this.id = id;
         this.index = 1;
         this.countYesAnsw = 0;
@@ -28,19 +28,11 @@ public class RunningTest {
         else
             return false;
     }
-
-    public void clear()
-    {
-        index = 0;
-        countYesAnsw = 0;
-    }
-
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        RunningTest that = (RunningTest) o;
+        PlayGame that = (PlayGame) o;
         return id == that.id;
     }
 
@@ -52,16 +44,10 @@ public class RunningTest {
     public int getIndex() {
         return index;
     }
-
-    public int getCountYesAnsw() {
-        return countYesAnsw;
-    }
-
     public int getResult()
     {
         double procent = ((double) countYesAnsw) / ((double) index) * 100;
         int res = (int) procent;
         return res;
     }
-
 }

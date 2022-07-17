@@ -1,139 +1,70 @@
 package process;
 
+import main.UserData;
 import main.SystemData;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 
 import java.util.Locale;
 
 public class Handler {
-    private Statistic stat;
+    private UserData userData;
     private SystemData sys;
+    private GameScene gameScene;
     private KeyboardSetting keySett;
-    ReplyKeyboard keyboard;
+    //private ReplyKeyboard keyboard;
 
-    public Handler()
-    {
-        stat = new Statistic();
+    public Handler() {
+        userData = new UserData();
         sys = new SystemData();
+        gameScene = new GameScene();
         keySett = new KeyboardSetting();
-        keySett.updateKeyboard(true);
-        sys.initLists();
-        //!!!!!!!!!
+        keySett.updateKeyboard();
     }
-    public PackForSend parse(Message inMsg)
-    {
-        String response = "hANDLER";
-        boolean isStart = false;
+
+    public PackForSend parse(Message inMsg) {
+        PackForSend response;
 
         String chatId = inMsg.getChatId().toString();
-        String textMsg = inMsg.getText().toLowerCase(Locale.ROOT);
+        String textMsg = inMsg.getText();
+        String mainMenuLabel = "Приветствую вас. QuizBot по столицам мира. Подтянине себя в географии)";
 
+        if (textMsg.equals("/start")) {
+            userData.addId(chatId);
+            keySett.updateKeyboard();
+            ReplyKeyboard keyboard;
+            keyboard = keySett.getRepKeMarkup();
 
-        if(stat.isStartTest(chatId))
-            isStart = true;
-
-        if(!isStart)
-        {
-            if(textMsg.equals("/start"))
-            {
-                response = "Привет дружище, я подготовил для тебя особый тест, готов?";
-
-                stat.addId(chatId);
-                keySett.updateKeyboard(true);
-                keyboard = keySett.getRepKeMarkup();
-            }
-            else if(textMsg.equals("да"))
-            {
-                response = "Проверим твою слабость на задок!!!\n";
-                response = response.concat(sys.getQuestion(1));
-
-                stat.addRunTest(new RunningTest(chatId));
-                keySett.initKeyboardRemove();
-                keyboard = keySett.getReplyKeyboardRemove();
-            }
-            else if(textMsg.equals("нет"))
-            {
-                response = "ПИДОРА ОТВЕТ\n" +
-                        "Подумай хорошенько еще раз";
-            }
+            response = new PackForSend(chatId, mainMenuLabel, keyboard);
         }
-        else if(isStart && (stat.getRunTest(chatId).getIndex() == 1))
-        {
-            if(textMsg.equals("олег") || textMsg.equals("никита") || textMsg.equals("саша"))
-            {
-                response = getFinalResponse(false, chatId);
+        else if (textMsg.equals("Играть")) {
 
-                keySett.updateKeyboard(true);
-                keyboard = keySett.getRepKeMarkup();
+            userData.addPlayerPlay(new PlayGame(chatId));
+            //ReplyKeyboard keyboard = gameScene.keyboard();
+            response = gameScene.initMessageQuestion(chatId);
+
+        }
+        else{
+            String responseText;
+            if(inMsg.equals(gameScene.buffAnswer))
+            {
+                responseText = "Это правильный ответ\n";
+                userData.getPlPlays(chatId).nextStep(true);
             }
             else
             {
-                stat.getRunTest(chatId).nextStep(false);
-
-                keySett.initQueKeyboard();
-                keySett.updateKeyboard(false);
-                keyboard = keySett.getRepKeMarkup();
-                response = sys.getQuestion(stat.getRunTest(chatId).getIndex());
+                responseText = "Это неправильный ответ\n";
+                userData.getPlPlays(chatId).nextStep(false);
             }
-        }
-        else if(isStart && (stat.getRunTest(chatId).getIndex() <= sys.getSizeQList()))
-        {
-            System.out.println(stat.getRunTest(chatId).getIndex());
-            System.out.println(sys.getSizeQList() + "\n");
-            if(textMsg.equals("да"))
+            response = gameScene.initMessageQuestion(chatId);
+            response.setTxtQ(responseText.concat(response.getTxtQ()));
+
+            if(userData.getPlPlays(chatId).getIndex() == gameScene.countQuestion);
             {
-                stat.getRunTest(chatId).nextStep(true);
+                response.setTxtQ("Ваш результат ".concat(Integer.toString(userData.getPlPlays(chatId).getResult())));
+                response.setKeyboard(keySett.getRepKeMarkup());
             }
-            else if(textMsg.equals("нет"))
-            {
-                stat.getRunTest(chatId).nextStep(false);
-
-            }
-
-
-            if(stat.getRunTest(chatId).getIndex() <= sys.getSizeQList())
-            {
-                keySett.initQueKeyboard();
-                keySett.updateKeyboard(false);
-                keyboard = keySett.getRepKeMarkup();
-                response = sys.getQuestion(stat.getRunTest(chatId).getIndex());
-            }
-
-            else if(stat.getRunTest(chatId).getIndex() > sys.getSizeQList())
-            {
-                response = getFinalResponse(true, chatId);
-                stat.delRunTest(chatId);
-                System.out.println(response);
-
-                keySett.updateKeyboard(true);
-                keyboard = keySett.getRepKeMarkup();
-            }
-        }
-
-
-        PackForSend pack = new PackForSend(chatId, response, keyboard);
-
-        return pack;
-    }
-
-    String getFinalResponse(boolean isPassTheFull, String id)
-    {
-        String response;
-        if(isPassTheFull) {
-            System.out.println(stat.getRunTest(id).getResult());
-            String result = Integer.toString(stat.getRunTest(id).getResult());
-
-            response = result.concat("% - твой результат. Надеюсь твои друзья гордятся тобой\n" +
-                    "Хочешь еще?");
-        }
-        else
-        {
-            stat.delRunTest(id);
-
-            response = " ОЙ ОЙ ОЙ. Да вы же пидор на все 100 процентов\n" +
-                    "Ну что? Попытаешь свою удачу еще раз?";
-
         }
 
         return response;

@@ -1,11 +1,13 @@
-package process;
+package main;
+
+import process.PlayGame;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Statistic {
+public class UserData {
     private List<String> chatIdList = new ArrayList<>();
-    private List<RunningTest> runTests = new ArrayList<>();
+    private List<PlayGame> playersPlays = new ArrayList<>();
 
     public void addId(String id) {
         if (!chatIdList.contains(id)) {
@@ -13,15 +15,15 @@ public class Statistic {
         }
     }
 
-    public void addRunTest(RunningTest runningTest) {
-        if (!runTests.contains(runningTest)) {
-            runTests.add(runningTest);
+    public void addPlayerPlay(PlayGame playGame) {
+        if (!playersPlays.contains(playGame)) {
+            playersPlays.add(playGame);
         }
     }
-    public void delRunTest(String id) {
+    public void delplayerPlay(String id) {
 
         int index = 0;
-        for(RunningTest test : runTests)
+        for(PlayGame test : playersPlays)
         {
             if(test.isEqualsId(id))
                 break;
@@ -29,12 +31,12 @@ public class Statistic {
                 index = index + 1;
         }
 
-        runTests.remove(index);
+        playersPlays.remove(index);
 
     }
 
-    public RunningTest getRunTest(String id) {
-        for(RunningTest test : runTests)
+    public PlayGame getPlPlays(String id) {
+        for(PlayGame test : playersPlays)
         {
             if(test.isEqualsId(id))
                 return test;
@@ -42,9 +44,9 @@ public class Statistic {
         return null;
     }
 
-    public boolean isStartTest(String id)
+    public boolean isPlPlay(String id)
     {
-        for(RunningTest test : runTests)
+        for(PlayGame test : playersPlays)
         {
             if(test.isEqualsId(id))
                 return true;
