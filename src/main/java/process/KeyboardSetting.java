@@ -1,5 +1,6 @@
 package process;
 
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
@@ -8,12 +9,12 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 import java.util.ArrayList;
 
 public class KeyboardSetting {
-    ReplyKeyboardRemove replyKeyboardRemove;
-    ReplyKeyboardMarkup replyKeyboardMarkup;
-    ArrayList<KeyboardRow> keyboardRows;
-    ArrayList<String> keyTextList;
-    KeyboardRow mainKeyRow;
-    KeyboardRow askKeyRow;
+    private ReplyKeyboardRemove replyKeyboardRemove;
+    private ReplyKeyboardMarkup replyKeyboardMarkup;
+    private ArrayList<KeyboardRow> keyboardRows;
+    private ArrayList<String> keyTextList;
+    private KeyboardRow mainKeyRow;
+    private KeyboardRow askKeyRow;
 
     public KeyboardSetting()
     {
@@ -66,6 +67,7 @@ public class KeyboardSetting {
             keyboardRows.add(askKeyRow);
 
         replyKeyboardMarkup.setKeyboard(keyboardRows);
+        //keyboard = replyKeyboardMarkup;
     }
 
     public ReplyKeyboardMarkup getRepKeMarkup() {
@@ -73,7 +75,15 @@ public class KeyboardSetting {
     }
 
     public ReplyKeyboardRemove getReplyKeyboardRemove() {
-        replyKeyboardRemove.setRemoveKeyboard(true);
         return replyKeyboardRemove;
     }
+
+    public void initKeyboardRemove() {
+        replyKeyboardRemove.setRemoveKeyboard(true);
+        replyKeyboardRemove.setSelective(true);
+    }
+
+    /*public ReplyKeyboard getKeyboard() {
+        return keyboard;
+    }*/
 }
